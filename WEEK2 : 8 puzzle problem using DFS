@@ -1,0 +1,67 @@
+def is_goal(state, goal):
+    return state == goal
+
+def get_neighbors(state):
+    neighbors = []
+    zero_pos = state.index(0)
+    row, col = divmod(zero_pos, 3)
+
+    moves = {
+        'up': (row - 1, col),
+        'down': (row + 1, col),
+        'left': (row, col - 1),
+        'right': (row, col + 1)
+    }
+
+    for move, (r, c) in moves.items():
+        if 0 <= r < 3 and 0 <= c < 3:
+            new_pos = r * 3 + c
+            new_state = list(state)
+            # Swap zero with the adjacent tile
+            new_state[zero_pos], new_state[new_pos] = new_state[new_pos], new_state[zero_pos]
+            neighbors.append((tuple(new_state), move))
+    return neighbors
+
+def dfs(start_state, goal_state):
+    stack = [(start_state, [], [start_state])]  # (state, moves_path, states_path)
+    visited = set()
+
+    while stack:
+        current_state, moves_path, states_path = stack.pop()
+
+        if is_goal(current_state, goal_state):
+            return moves_path, states_path  # Return moves and states
+
+        if current_state in visited:
+            continue
+        visited.add(current_state)
+
+        for neighbor, move in get_neighbors(current_state):
+            if neighbor not in visited:
+                stack.append((neighbor, moves_path + [move], states_path + [neighbor]))
+
+    return None, None  # No solution found
+
+# Example Usage
+
+start_state = (1, 2, 3,
+               4, 0, 6,
+               7, 5, 8)
+
+goal_state = (1, 2, 3,
+              4, 5, 6,
+              7, 8, 0)
+
+moves, solution = dfs(start_state, goal_state)
+
+if solution:
+    print(f"Solution found in {len(moves)} moves:")
+    for i, state in enumerate(solution):
+        print(state[0:3])
+        print(state[3:6])
+        print(state[6:9])
+        if i < len(moves):
+            print(f"Move: {moves[i]}")
+        print()
+else:
+    print("No solution found.")

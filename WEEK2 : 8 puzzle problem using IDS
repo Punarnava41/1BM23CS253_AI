@@ -1,0 +1,48 @@
+GOAL = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+MOVES = {'UP': -3, 'DOWN': 3, 'LEFT': -1, 'RIGHT': 1}
+
+def valid(idx, move):
+    if move == 'LEFT' and idx % 3 == 0: return False
+    if move == 'RIGHT' and idx % 3 == 2: return False
+    if move == 'UP' and idx < 3: return False
+    if move == 'DOWN' and idx > 5: return False
+    return True
+
+def move(state, direction):
+    i = state.index(0)
+    if not valid(i, direction): return None
+    j = i + MOVES[direction]
+    lst = list(state)
+    lst[i], lst[j] = lst[j], lst[i]
+    return tuple(lst)
+
+def dls(state, depth, path, visited):
+    if state == GOAL: return path
+    if depth == 0: return None
+    visited.add(state)
+    for dir in MOVES:
+        new = move(state, dir)
+        if new and new not in visited:
+            res = dls(new, depth - 1, path + [new], visited)
+            if res: return res
+    visited.remove(state)
+    return None
+
+def ids(start, max_depth=50):
+    for d in range(max_depth):
+        res = dls(start, d, [start], set())
+        if res: return res
+    return None
+
+def print_state(s):
+    for i in range(0, 9, 3): print(s[i:i+3])
+    print()
+
+# Example usage
+start = (1, 2, 3, 4, 5, 6, 0, 7, 8)
+path = ids(start)
+if path:
+    print(f"Solved in {len(path)-1} moves:")
+    for p in path: print_state(p)
+else:
+    print("No solution found.")
